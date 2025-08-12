@@ -1,0 +1,61 @@
+Visão Geral do Sistema
+O sistema será desenvolvido para auxiliar a administradora Arielle Tigre na gestão eficiente das compras e pagamentos de camisetas para o congresso da igreja. O sistema deve ser intuitivo, seguro e fornecer ferramentas robustas para acompanhar todas as etapas do processo, desde a compra até o pagamento final.
+________________________________________
+Requisitos Funcionais
+1.	Autenticação e Segurança:
+•	Login: O administrador Arielle Tigre acessa o sistema usando seu email (arielle.tigre@hotmail.com) e senha (Ar@983522274).
+•	Recuperação de Senha: Se o administrador esquecer sua senha, ele pode solicitar uma nova por meio de um link enviado ao email arielle.tigre@hotmail.com.
+•	Autenticação Forte: Implementar autenticação em duas etapas (2FA) para maior segurança.
+2.	Landing Page:
+•	Identidade Visual: A landing page deve refletir a identidade visual da igreja, utilizando o logotipo fornecido.
+•	Redes Sociais: Incluir links para as redes sociais da igreja:
+•	Instagram: https://www.instagram.com/ieadajerusalem/
+•	Design Responsivo: A página deve ser responsiva para dispositivos móveis e desktops.
+•	Call to Action (CTA): Botão para "Entrar no Sistema" direcionando ao formulário de login.
+3.	Dashboard Principal:
+•	Visão Geral dos Dados:
+•	Total de camisetas compradas por lote.
+•	Total arrecadado vs. total gasto.
+•	Gráficos interativos mostrando a distribuição de camisetas por tamanho e congregação.
+•	Filtros Avançados: Permitir filtragem por data, congregação, tamanho de camiseta e status de pagamento.
+•	Indicadores Chave de Desempenho (KPIs):
+•	Porcentagem de pagamentos realizados.
+•	Quantidade de camisetas ainda pendentes de pagamento.
+•	Relatórios de vendas por período.
+4.	Gerenciamento de Pedidos:
+•	Cadastro de Pedidos:
+•	Adicionar novos pedidos com informações detalhadas:
+•	Nome da Congregação.
+•	Tamanho da camiseta (PP, P, M, G, GG, EXTG, etc.).
+•	Quantidade solicitada.
+•	Data do pedido.
+•	Status do pagamento (Pago/ Pendente).
+•	Edição e Exclusão de Pedidos: Permitir que o administrador edite ou exclua pedidos existentes.
+•	Exportação de Dados: Opção para exportar os dados dos pedidos em formato CSV ou Excel.
+5.	Pagamentos:
+•	Registro de Pagamentos:
+•	Registrar pagamentos realizados por cada congregação ou indivíduo.
+•	Informar a forma de pagamento (Dinheiro, Transferência Bancária, Cartão de Crédito, etc.).
+•	Status de Pagamento:
+•	Marcar pedidos como "Pago" ou "Pendente".
+•	Notificar automaticamente o administrador sobre pedidos pendentes após um determinado prazo.
+6.	Relatórios e Análises:
+•	Relatórios Personalizáveis:
+•	Geração de relatórios por período (diário, semanal, mensal).
+•	Detalhes de vendas por congregação.
+•	Resumo financeiro completo.
+•	Gráficos Interativos:
+•	Utilizar bibliotecas como Chart.js ou Google Charts para criar gráficos de barras, linhas e pizza.
+•	Mostrar tendências de vendas e pagamentos ao longo do tempo.
+7.	Usuários e Permissões:
+•	Administrador Arielle Tigre: Ter acesso total ao sistema.
+•	Outros Usuários (se necessário): Configurar permissões limitadas para outros usuários, caso seja necessário.
+8.	Notificações e Alertas:
+•	Emails Automáticos: Enviar notificações automáticas para Arielle Tigre sobre:
+•	Novos pedidos recebidos.
+•	Pedidos pendentes de pagamento.
+•	Alterações significativas nos dados.
+•	Alertas de Vencimento: Lembrete automático para pedidos com datas próximas de vencimento.
+9.	Backup e Recuperação de Dados:
+•	Backup Regular: Realizar backups automáticos dos dados periodicamente.
+•	Recuperação de Dados: Oferecer opções para restaurar dados em caso de erro ou perda.
