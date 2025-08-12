@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Pedidos - Sistema de Pedidos{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 text-church-primary mb-1">Gerenciamento de Pedidos</h1>
+                    <p class="text-muted mb-0">Visualize e gerencie todos os pedidos de camisetas</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('add_order') }}" class="btn btn-church-primary">
+                        <i class="fas fa-plus me-1"></i>Novo Pedido
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-filter me-1"></i>Filtros
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Congregação</label>
+                            <input type="text" name="congregation" class="form-control" 
+                                   value="{{ filters.congregation }}" placeholder="Nome da congregação">
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <label class="form-label">Tamanho</label>
+                            <select name="size" class="form-select">
+                                <option value="">Todos</option>
+                                {% for size in sizes %}
+                                <option value="{{ size }}" {% if filters.size == size %}selected{% endif %}>{{ size }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="Pago" {% if filters.status == 'Pago' %}selected{% endif %}>Pago</option>
+                                <option value="Pendente" {% if filters.status == 'Pendente' %}selected{% endif %}>Pendente</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <label class="form-label">Data Início</label>
+                            <input type="date" name="date_from" class="form-control" value="{{ filters.date_from }}">
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <label class="form-label">Data Fim</label>
+                            <input type="date" name="date_to" class="form-control" value="{{ filters.date_to }}">
+                        </div>
+                        
+                        <div class="col-md-1">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Pedidos -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">
+                        <i class="fas fa-list me-1"></i>Lista de Pedidos
+                    </h6>
+                    <div>
+                        <a href="{{ url_for('export_csv') }}" class="btn btn-outline-success btn-sm">
+                            <i class="fas fa-download me-1"></i>Exportar CSV
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Congregação</th>
+                                        <th>Tamanho</th>
+                                        <th>Quantidade</th>
+                                        <th>Valor Unit.</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                        <th>Método</th>
+                                        <th>Data</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                    <tr>
+                                        <td><strong>#{{ order.id }}</strong></td>
+                                        <td>{{ order.congregation }}</td>
+                                        <td><span class="badge bg-secondary">{{ order.size }}</span></td>
+                                        <td>{{ order.quantity }}</td>
+                                        <td>R$ {{ "%.2f"|format(order.unit_price) }}</td>
+                                        <td><strong>R$ {{ "%.2f"|format(order.total_amount) }}</strong></td>
+                                        <td>
+                                            <span class="badge {% if order.payment_status == 'Pago' %}bg-success{% else %}bg-warning{% endif %}">
+                                                {{ order.payment_status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ order.payment_method or '-' }}</td>
+                                        <td>{{ order.order_date.strftime('%d/%m/%Y') if order.order_date else '-' }}</td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="{{ url_for('edit_order', id=order.id) }}" 
+                                                   class="btn btn-outline-primary" title="Editar">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{{ url_for('delete_order', id=order.id) }}" 
+                                                   class="btn btn-outline-danger" title="Excluir"
+                                                   onclick="return confirm('Tem certeza que deseja excluir este pedido?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Paginação -->
+                        {% if pagination.pages > 1 %}
+                        <nav aria-label="Navegação de páginas">
+                            <ul class="pagination justify-content-center">
+                                {% if pagination.has_prev %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('orders', page=pagination.prev_num, **filters) }}">Anterior</a>
+                                    </li>
+                                {% endif %}
+                                
+                                {% for page_num in pagination.iter_pages() %}
+                                    {% if page_num %}
+                                        {% if page_num != pagination.page %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ url_for('orders', page=page_num, **filters) }}">{{ page_num }}</a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item active">
+                                                <span class="page-link">{{ page_num }}</span>
+                                            </li>
+                                        {% endif %}
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <span class="page-link">...</span>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                {% if pagination.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('orders', page=pagination.next_num, **filters) }}">Próxima</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Nenhum pedido encontrado</h5>
+                            <p class="text-muted">{% if filters.congregation or filters.size or filters.status %}Tente ajustar os filtros ou{% else %}Comece{% endif %} criando um novo pedido.</p>
+                            <a href="{{ url_for('add_order') }}" class="btn btn-church-primary">
+                                <i class="fas fa-plus me-1"></i>Criar Pedido
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-submit form on filter change
+    document.querySelectorAll('select[name="size"], select[name="status"]').forEach(function(select) {
+        select.addEventListener('change', function() {
+            this.closest('form').submit();
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Sistema de Pedidos{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 text-church-primary mb-1">Dashboard</h1>
+                    <p class="text-muted mb-0">Visão geral dos pedidos e pagamentos</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('add_order') }}" class="btn btn-church-primary">
+                        <i class="fas fa-plus me-1"></i>Novo Pedido
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ stats.total_orders }}</h4>
+                            <p class="mb-0 opacity-75">Total de Pedidos</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-shopping-cart fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ stats.total_quantity }}</h4>
+                            <p class="mb-0 opacity-75">Camisetas Pedidas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-tshirt fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">R$ {{ "%.2f"|format(stats.total_revenue) }}</h4>
+                            <p class="mb-0 opacity-75">Total Arrecadado</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ "%.1f"|format(stats.payment_rate) }}%</h4>
+                            <p class="mb-0 opacity-75">Taxa de Pagamento</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-percentage fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-1"></i>Distribuição por Tamanho
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="sizeChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-1"></i>Pedidos por Congregação
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="congregationChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders and Pending Payments -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-clock me-1"></i>Pedidos Recentes
+                    </h5>
+                    <a href="{{ url_for('orders') }}" class="btn btn-sm btn-outline-primary">Ver Todos</a>
+                </div>
+                <div class="card-body">
+                    {% if recent_orders %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Congregação</th>
+                                        <th>Tamanho</th>
+                                        <th>Qtd</th>
+                                        <th>Status</th>
+                                        <th>Data</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in recent_orders %}
+                                    <tr>
+                                        <td><strong>#{{ order.id }}</strong></td>
+                                        <td>{{ order.congregation }}</td>
+                                        <td><span class="badge bg-secondary">{{ order.size }}</span></td>
+                                        <td>{{ order.quantity }}</td>
+                                        <td>
+                                            <span class="badge {% if order.payment_status == 'Pago' %}bg-success{% else %}bg-warning{% endif %}">
+                                                {{ order.payment_status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ order.order_date.strftime('%d/%m/%Y') if order.order_date else '-' }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Nenhum pedido encontrado.</p>
+                            <a href="{{ url_for('add_order') }}" class="btn btn-church-primary">Criar Primeiro Pedido</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-exclamation-triangle me-1"></i>Pagamentos Pendentes
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Valor Pendente:</span>
+                            <strong class="text-warning">R$ {{ "%.2f"|format(stats.pending_amount) }}</strong>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Pedidos Pendentes:</span>
+                            <strong class="text-info">{{ stats.total_orders - stats.paid_orders }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="progress mb-3" style="height: 8px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ stats.payment_rate }}%" 
+                             aria-valuenow="{{ stats.payment_rate }}" aria-valuemin="0" aria-valuemax="100">
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <small class="text-muted">{{ "%.1f"|format(stats.payment_rate) }}% dos pedidos foram pagos</small>
+                    </div>
+
+                    <div class="d-grid mt-3">
+                        <a href="{{ url_for('orders', status='Pendente') }}" class="btn btn-outline-warning btn-sm">
+                            Ver Pendentes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script>
+    // Dados para os gráficos
+    const sizeData = {{ size_distribution|tojson }};
+    const congregationData = {{ congregation_distribution|tojson }};
+    
+    // Inicializar gráficos
+    initializeDashboardCharts(sizeData, congregationData);
+</script>
+{% endblock %}

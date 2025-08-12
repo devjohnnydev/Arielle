@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Novo Pedido - Sistema de Pedidos{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex align-items-center">
+                <a href="{{ url_for('orders') }}" class="btn btn-outline-secondary me-3">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h1 class="h3 text-church-primary mb-1">Novo Pedido</h1>
+                    <p class="text-muted mb-0">Adicione um novo pedido de camiseta</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-plus me-1"></i>Informações do Pedido
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" novalidate>
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="{{ form.congregation.id }}" class="form-label">
+                                    <i class="fas fa-church me-1"></i>Nome da Congregação *
+                                </label>
+                                {{ form.congregation(class="form-control" + (" is-invalid" if form.congregation.errors else "")) }}
+                                {% if form.congregation.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.congregation.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.size.id }}" class="form-label">
+                                    <i class="fas fa-tshirt me-1"></i>Tamanho *
+                                </label>
+                                {{ form.size(class="form-select" + (" is-invalid" if form.size.errors else "")) }}
+                                {% if form.size.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.size.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.quantity.id }}" class="form-label">
+                                    <i class="fas fa-sort-numeric-up me-1"></i>Quantidade *
+                                </label>
+                                {{ form.quantity(class="form-control" + (" is-invalid" if form.quantity.errors else ""), onchange="calculateTotal()") }}
+                                {% if form.quantity.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.quantity.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ form.unit_price.id }}" class="form-label">
+                                    <i class="fas fa-dollar-sign me-1"></i>Preço Unitário (R$) *
+                                </label>
+                                {{ form.unit_price(class="form-control" + (" is-invalid" if form.unit_price.errors else ""), step="0.01", onchange="calculateTotal()") }}
+                                {% if form.unit_price.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.unit_price.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-calculator me-1"></i>Valor Total (R$)
+                                </label>
+                                <input type="text" id="total_display" class="form-control" readonly placeholder="R$ 0,00">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.payment_status.id }}" class="form-label">
+                                    <i class="fas fa-credit-card me-1"></i>Status do Pagamento *
+                                </label>
+                                {{ form.payment_status(class="form-select" + (" is-invalid" if form.payment_status.errors else ""), onchange="togglePaymentMethod()") }}
+                                {% if form.payment_status.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.payment_status.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3" id="payment_method_group">
+                                <label for="{{ form.payment_method.id }}" class="form-label">
+                                    <i class="fas fa-money-bill me-1"></i>Método de Pagamento
+                                </label>
+                                {{ form.payment_method(class="form-select" + (" is-invalid" if form.payment_method.errors else "")) }}
+                                {% if form.payment_method.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.payment_method.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.notes.id }}" class="form-label">
+                                <i class="fas fa-sticky-note me-1"></i>Observações
+                            </label>
+                            {{ form.notes(class="form-control" + (" is-invalid" if form.notes.errors else ""), rows="3") }}
+                            {% if form.notes.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.notes.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Informações adicionais sobre o pedido (opcional)</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{{ url_for('orders') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Cancelar
+                            </a>
+                            {{ form.submit(class="btn btn-church-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Calcular total automaticamente
+    function calculateTotal() {
+        const quantity = parseFloat(document.getElementById('{{ form.quantity.id }}').value) || 0;
+        const unitPrice = parseFloat(document.getElementById('{{ form.unit_price.id }}').value) || 0;
+        const total = quantity * unitPrice;
+        
+        document.getElementById('total_display').value = 'R$ ' + total.toFixed(2).replace('.', ',');
+    }
+    
+    // Mostrar/ocultar método de pagamento baseado no status
+    function togglePaymentMethod() {
+        const status = document.getElementById('{{ form.payment_status.id }}').value;
+        const methodGroup = document.getElementById('payment_method_group');
+        
+        if (status === 'Pago') {
+            methodGroup.style.display = 'block';
+        } else {
+            methodGroup.style.display = 'none';
+            document.getElementById('{{ form.payment_method.id }}').value = '';
+        }
+    }
+    
+    // Inicializar na carga da página
+    document.addEventListener('DOMContentLoaded', function() {
+        calculateTotal();
+        togglePaymentMethod();
+        
+        // Auto-focus no primeiro campo
+        document.getElementById('{{ form.congregation.id }}').focus();
+    });
+</script>
+{% endblock %}

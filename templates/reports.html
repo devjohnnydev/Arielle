@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+
+{% block title %}Relatórios - Sistema de Pedidos{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 text-church-primary mb-1">Relatórios e Análises</h1>
+                    <p class="text-muted mb-0">Visualize estatísticas detalhadas e exporte dados</p>
+                </div>
+                <div>
+                    <a href="{{ url_for('export_csv') }}" class="btn btn-success">
+                        <i class="fas fa-download me-1"></i>Exportar CSV
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ stats.total_orders }}</h4>
+                            <p class="mb-0 opacity-75">Total de Pedidos</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-shopping-cart fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">{{ stats.total_quantity }}</h4>
+                            <p class="mb-0 opacity-75">Camisetas Pedidas</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-tshirt fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">R$ {{ "%.2f"|format(stats.total_revenue) }}</h4>
+                            <p class="mb-0 opacity-75">Total Arrecadado</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-dollar-sign fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-6 mb-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="mb-0">R$ {{ "%.2f"|format(stats.pending_amount) }}</h4>
+                            <p class="mb-0 opacity-75">Valor Pendente</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-exclamation-triangle fa-2x opacity-75"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie me-1"></i>Distribuição por Tamanho
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="sizeChart" width="400" height="300"></canvas>
+                </div>
+                <div class="card-footer">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Tamanho</th>
+                                    <th class="text-end">Quantidade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in size_distribution %}
+                                <tr>
+                                    <td><span class="badge bg-secondary">{{ item.size }}</span></td>
+                                    <td class="text-end">{{ item.quantity }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar me-1"></i>Pedidos por Congregação
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="congregationChart" width="400" height="300"></canvas>
+                </div>
+                <div class="card-footer">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Congregação</th>
+                                    <th class="text-end">Quantidade</th>
+                                    <th class="text-end">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in congregation_distribution %}
+                                <tr>
+                                    <td>{{ item.congregation }}</td>
+                                    <td class="text-end">{{ item.quantity }}</td>
+                                    <td class="text-end">R$ {{ "%.2f"|format(item.amount) }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Status Analysis -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-credit-card me-1"></i>Status de Pagamentos
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="paymentStatusChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle me-1"></i>Resumo Financeiro
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <span>Total de Pedidos:</span>
+                                <strong>{{ stats.total_orders }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <span>Pedidos Pagos:</span>
+                                <strong class="text-success">{{ stats.paid_orders }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <span>Pedidos Pendentes:</span>
+                                <strong class="text-warning">{{ stats.total_orders - stats.paid_orders }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <hr>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <span>Taxa de Pagamento:</span>
+                                <strong>{{ "%.1f"|format(stats.payment_rate) }}%</strong>
+                            </div>
+                            <div class="progress mt-2" style="height: 8px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ stats.payment_rate }}%" 
+                                     aria-valuenow="{{ stats.payment_rate }}" aria-valuemin="0" aria-valuemax="100">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <hr>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <span>Total Arrecadado:</span>
+                                <strong class="text-success">R$ {{ "%.2f"|format(stats.total_revenue) }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <span>Valor Pendente:</span>
+                                <strong class="text-danger">R$ {{ "%.2f"|format(stats.pending_amount) }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between border-top pt-2">
+                                <span><strong>Valor Total:</strong></span>
+                                <strong>R$ {{ "%.2f"|format(stats.total_revenue + stats.pending_amount) }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-3">
+                        <a href="{{ url_for('orders', status='Pendente') }}" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-eye me-1"></i>Ver Pedidos Pendentes
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Options -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-download me-1"></i>Opções de Exportação
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-file-csv fa-2x text-success me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Exportar para CSV</h6>
+                                    <p class="text-muted mb-2 small">Baixe todos os dados dos pedidos em formato CSV para análise em planilhas.</p>
+                                    <a href="{{ url_for('export_csv') }}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-download me-1"></i>Baixar CSV
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-print fa-2x text-primary me-3"></i>
+                                <div>
+                                    <h6 class="mb-1">Imprimir Relatório</h6>
+                                    <p class="text-muted mb-2 small">Imprima esta página com todas as informações e gráficos.</p>
+                                    <button onclick="window.print()" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-print me-1"></i>Imprimir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Dados para os gráficos
+    const sizeData = {{ size_distribution|tojson }};
+    const congregationData = {{ congregation_distribution|tojson }};
+    const stats = {{ stats|tojson }};
+    
+    // Gráfico de distribuição por tamanho
+    const sizeCtx = document.getElementById('sizeChart').getContext('2d');
+    new Chart(sizeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: sizeData.map(item => item.size),
+            datasets: [{
+                data: sizeData.map(item => item.quantity),
+                backgroundColor: [
+                    '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+                    '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+    
+    // Gráfico de pedidos por congregação
+    const congCtx = document.getElementById('congregationChart').getContext('2d');
+    new Chart(congCtx, {
+        type: 'bar',
+        data: {
+            labels: congregationData.map(item => item.congregation),
+            datasets: [{
+                label: 'Quantidade',
+                data: congregationData.map(item => item.quantity),
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+    
+    // Gráfico de status de pagamentos
+    const paymentCtx = document.getElementById('paymentStatusChart').getContext('2d');
+    new Chart(paymentCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Pago', 'Pendente'],
+            datasets: [{
+                data: [stats.paid_orders, stats.total_orders - stats.paid_orders],
+                backgroundColor: ['#28a745', '#ffc107'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

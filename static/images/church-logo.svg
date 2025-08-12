@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <linearGradient id="crossGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2c5282;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3182ce;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#b8941f;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="90" fill="url(#circleGradient)" filter="url(#shadow)"/>
+  
+  <!-- Inner Circle -->
+  <circle cx="100" cy="100" r="75" fill="white" opacity="0.9"/>
+  
+  <!-- Cross -->
+  <g fill="url(#crossGradient)" filter="url(#shadow)">
+    <!-- Vertical part of cross -->
+    <rect x="85" y="40" width="30" height="120" rx="15"/>
+    <!-- Horizontal part of cross -->
+    <rect x="55" y="85" width="90" height="30" rx="15"/>
+  </g>
+  
+  <!-- Decorative elements -->
+  <g fill="url(#circleGradient)" opacity="0.8">
+    <!-- Top decoration -->
+    <circle cx="100" cy="45" r="8"/>
+    <!-- Left decoration -->
+    <circle cx="60" cy="100" r="6"/>
+    <!-- Right decoration -->
+    <circle cx="140" cy="100" r="6"/>
+    <!-- Bottom decoration -->
+    <circle cx="100" cy="155" r="8"/>
+  </g>
+  
+  <!-- Text curve path (invisible) -->
+  <defs>
+    <path id="textCircle" d="M 100,100 m -70,0 A 70,70 0 1,1 100,30 A 70,70 0 1,1 100,170 A 70,70 0 1,1 100,100"/>
+  </defs>
+  
+  <!-- Church name on path -->
+  <text font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c5282">
+    <textPath href="#textCircle" startOffset="25%">
+      IEADJ • IGREJA JERUSALÉM
+    </textPath>
+  </text>
+  
+  <!-- Center small cross -->
+  <g fill="white" opacity="0.9">
+    <rect x="95" y="85" width="10" height="30" rx="2"/>
+    <rect x="85" y="95" width="30" height="10" rx="2"/>
+  </g>
+</svg>

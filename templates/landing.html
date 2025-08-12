@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Bem-vindo - Sistema de Pedidos Igreja Jerusalém{% endblock %}
+
+{% block content %}
+<div class="landing-page">
+    <!-- Hero Section -->
+    <section class="hero-section d-flex align-items-center">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <div class="hero-content">
+                        <img src="{{ url_for('static', filename='images/church-logo.svg') }}" alt="Logo Igreja Jerusalém" class="hero-logo mb-4">
+                        <h1 class="display-4 fw-bold text-church-primary mb-3">
+                            Sistema de Gestão de Pedidos
+                        </h1>
+                        <h2 class="h4 text-church-secondary mb-4">
+                            Igreja Assembleia de Deus de Jerusalém
+                        </h2>
+                        <p class="lead mb-4">
+                            Sistema completo para gerenciamento de pedidos e pagamentos de camisetas do congresso da igreja.
+                            Controle eficiente e seguro para nossa administração.
+                        </p>
+                        <div class="hero-buttons">
+                            <a href="{{ url_for('login') }}" class="btn btn-church-primary btn-lg me-3">
+                                <i class="fas fa-sign-in-alt me-2"></i>Entrar no Sistema
+                            </a>
+                            <a href="https://www.instagram.com/ieadajerusalem/" target="_blank" class="btn btn-outline-church-primary btn-lg">
+                                <i class="fab fa-instagram me-2"></i>Seguir no Instagram
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-image text-center">
+                        <div class="feature-cards">
+                            <div class="feature-card">
+                                <i class="fas fa-tshirt feature-icon"></i>
+                                <h5>Gestão de Pedidos</h5>
+                                <p>Controle completo dos pedidos de camisetas</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-credit-card feature-icon"></i>
+                                <h5>Controle de Pagamentos</h5>
+                                <p>Acompanhamento de status e métodos de pagamento</p>
+                            </div>
+                            <div class="feature-card">
+                                <i class="fas fa-chart-bar feature-icon"></i>
+                                <h5>Relatórios Detalhados</h5>
+                                <p>Análises e estatísticas completas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section py-5 bg-light">
+        <div class="container">
+            <div class="row text-center mb-5">
+                <div class="col-12">
+                    <h2 class="h2 text-church-primary mb-3">Funcionalidades do Sistema</h2>
+                    <p class="lead text-muted">Todas as ferramentas necessárias para uma gestão eficiente</p>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-item text-center">
+                        <div class="feature-icon-wrapper mb-3">
+                            <i class="fas fa-shield-alt fa-3x text-church-primary"></i>
+                        </div>
+                        <h5>Segurança Avançada</h5>
+                        <p class="text-muted">Sistema seguro com autenticação protegida para garantir a privacidade dos dados.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-item text-center">
+                        <div class="feature-icon-wrapper mb-3">
+                            <i class="fas fa-mobile-alt fa-3x text-church-primary"></i>
+                        </div>
+                        <h5>Design Responsivo</h5>
+                        <p class="text-muted">Interface adaptável para celulares, tablets e computadores.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-item text-center">
+                        <div class="feature-icon-wrapper mb-3">
+                            <i class="fas fa-download fa-3x text-church-primary"></i>
+                        </div>
+                        <h5>Exportação de Dados</h5>
+                        <p class="text-muted">Exporte relatórios em formato CSV para análise externa.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-item text-center">
+                        <div class="feature-icon-wrapper mb-3">
+                            <i class="fas fa-filter fa-3x text-church-primary"></i>
+                        </div>
+                        <h5>Filtros Avançados</h5>
+                        <p class="text-muted">Filtre pedidos por congregação, tamanho, data e status de pagamento.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-item text-center">
+                        <div class="feature-icon-wrapper mb-3">
+                            <i class="fas fa-chart-pie fa-3x text-church-primary"></i>
+                        </div>
+                        <h5>Gráficos Interativos</h5>
+                        <p class="text-muted">Visualize dados com gráficos dinâmicos e informativos.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-item text-center">
+                        <div class="feature-icon-wrapper mb-3">
+                            <i class="fas fa-clock fa-3x text-church-primary"></i>
+                        </div>
+                        <h5>Controle em Tempo Real</h5>
+                        <p class="text-muted">Acompanhe pedidos e pagamentos em tempo real.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="h2 text-white mb-3">Pronto para começar?</h2>
+                    <p class="lead text-white-50 mb-4">
+                        Acesse o sistema e comece a gerenciar os pedidos de forma eficiente
+                    </p>
+                    <a href="{{ url_for('login') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-arrow-right me-2"></i>Acessar Sistema
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
