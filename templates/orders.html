@@ -32,39 +32,29 @@
                 </div>
                 <div class="card-body">
                     <form method="GET" class="row g-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Lote</label>
+                            {{ filter_form.batch_number(class="form-select") }}
+                        </div>
+                        
                         <div class="col-md-3">
                             <label class="form-label">Congregação</label>
-                            <input type="text" name="congregation" class="form-control" 
-                                   value="{{ filters.congregation }}" placeholder="Nome da congregação">
+                            {{ filter_form.congregation(class="form-select") }}
                         </div>
                         
                         <div class="col-md-2">
                             <label class="form-label">Tamanho</label>
-                            <select name="size" class="form-select">
-                                <option value="">Todos</option>
-                                {% for size in sizes %}
-                                <option value="{{ size }}" {% if filters.size == size %}selected{% endif %}>{{ size }}</option>
-                                {% endfor %}
-                            </select>
+                            {{ filter_form.size(class="form-select") }}
                         </div>
                         
                         <div class="col-md-2">
                             <label class="form-label">Status</label>
-                            <select name="status" class="form-select">
-                                <option value="">Todos</option>
-                                <option value="Pago" {% if filters.status == 'Pago' %}selected{% endif %}>Pago</option>
-                                <option value="Pendente" {% if filters.status == 'Pendente' %}selected{% endif %}>Pendente</option>
-                            </select>
+                            {{ filter_form.payment_status(class="form-select") }}
                         </div>
                         
                         <div class="col-md-2">
                             <label class="form-label">Data Início</label>
-                            <input type="date" name="date_from" class="form-control" value="{{ filters.date_from }}">
-                        </div>
-                        
-                        <div class="col-md-2">
-                            <label class="form-label">Data Fim</label>
-                            <input type="date" name="date_to" class="form-control" value="{{ filters.date_to }}">
+                            <input type="date" name="date_from" class="form-control" value="{{ request.args.get('date_from', '') }}">
                         </div>
                         
                         <div class="col-md-1">
@@ -102,33 +92,33 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Lote</th>
                                         <th>Congregação</th>
                                         <th>Tamanho</th>
-                                        <th>Quantidade</th>
-                                        <th>Valor Unit.</th>
+                                        <th>Qtd</th>
                                         <th>Total</th>
                                         <th>Status</th>
-                                        <th>Método</th>
-                                        <th>Data</th>
+                                        <th>Data Lote</th>
+                                        <th>Entrega</th>
                                         <th>Ações</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for order in orders %}
+                                    {% for order in orders.items %}
                                     <tr>
                                         <td><strong>#{{ order.id }}</strong></td>
+                                        <td><span class="badge bg-church-gold text-dark">{{ order.batch_number }}</span></td>
                                         <td>{{ order.congregation }}</td>
                                         <td><span class="badge bg-secondary">{{ order.size }}</span></td>
                                         <td>{{ order.quantity }}</td>
-                                        <td>R$ {{ "%.2f"|format(order.unit_price) }}</td>
                                         <td><strong>R$ {{ "%.2f"|format(order.total_amount) }}</strong></td>
                                         <td>
                                             <span class="badge {% if order.payment_status == 'Pago' %}bg-success{% else %}bg-warning{% endif %}">
                                                 {{ order.payment_status }}
                                             </span>
                                         </td>
-                                        <td>{{ order.payment_method or '-' }}</td>
-                                        <td>{{ order.order_date.strftime('%d/%m/%Y') if order.order_date else '-' }}</td>
+                                        <td>{{ order.batch_date.strftime('%d/%m/%Y') if order.batch_date else '-' }}</td>
+                                        <td>{{ order.delivery_date.strftime('%d/%m/%Y') if order.delivery_date else '-' }}</td>
                                         <td>
                                             <div class="btn-group btn-group-sm">
                                                 <a href="{{ url_for('edit_order', id=order.id) }}" 

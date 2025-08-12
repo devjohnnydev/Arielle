@@ -32,7 +32,7 @@
                         {{ form.hidden_tag() }}
                         
                         <div class="row">
-                            <div class="col-md-8 mb-3">
+                            <div class="col-md-6 mb-3">
                                 <label for="{{ form.congregation.id }}" class="form-label">
                                     <i class="fas fa-church me-1"></i>Nome da Congregação *
                                 </label>
@@ -44,7 +44,19 @@
                                 {% endif %}
                             </div>
                             
-                            <div class="col-md-4 mb-3">
+                            <div class="col-md-3 mb-3">
+                                <label for="{{ form.batch_number.id }}" class="form-label">
+                                    <i class="fas fa-layer-group me-1"></i>Lote *
+                                </label>
+                                {{ form.batch_number(class="form-select" + (" is-invalid" if form.batch_number.errors else "")) }}
+                                {% if form.batch_number.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.batch_number.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-3 mb-3">
                                 <label for="{{ form.size.id }}" class="form-label">
                                     <i class="fas fa-tshirt me-1"></i>Tamanho *
                                 </label>
@@ -52,6 +64,32 @@
                                 {% if form.size.errors %}
                                     <div class="invalid-feedback">
                                         {% for error in form.size.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.batch_date.id }}" class="form-label">
+                                    <i class="fas fa-calendar me-1"></i>Data do Lote
+                                </label>
+                                {{ form.batch_date(class="form-control" + (" is-invalid" if form.batch_date.errors else "")) }}
+                                {% if form.batch_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.batch_date.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.delivery_date.id }}" class="form-label">
+                                    <i class="fas fa-truck me-1"></i>Data de Entrega
+                                </label>
+                                {{ form.delivery_date(class="form-control" + (" is-invalid" if form.delivery_date.errors else "")) }}
+                                {% if form.delivery_date.errors %}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.delivery_date.errors %}{{ error }}{% endfor %}
                                     </div>
                                 {% endif %}
                             </div>

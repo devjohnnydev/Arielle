@@ -2,7 +2,7 @@ from flask import render_template, request, redirect, url_for, flash, session, m
 from werkzeug.security import check_password_hash
 from app import app, db
 from models import Admin, Order
-from forms import LoginForm, OrderForm, EditOrderForm
+from forms import LoginForm, OrderForm, EditOrderForm, FilterForm
 from utils import export_orders_csv, login_required
 from datetime import datetime
 import io
@@ -47,6 +47,7 @@ def dashboard():
     stats = Order.get_summary_stats()
     size_distribution = Order.get_size_distribution()
     congregation_distribution = Order.get_congregation_distribution()
+    batch_distribution = Order.get_batch_distribution()
     
     # Get recent orders
     recent_orders = Order.query.order_by(Order.created_at.desc()).limit(5).all()
@@ -55,6 +56,7 @@ def dashboard():
                          stats=stats,
                          size_distribution=size_distribution,
                          congregation_distribution=congregation_distribution,
+                         batch_distribution=batch_distribution,
                          recent_orders=recent_orders)
 
 @app.route('/orders')
@@ -114,6 +116,9 @@ def add_order():
     if form.validate_on_submit():
         order = Order(
             congregation=form.congregation.data,
+            batch_number=form.batch_number.data,
+            batch_date=form.batch_date.data,
+            delivery_date=form.delivery_date.data,
             size=form.size.data,
             quantity=form.quantity.data,
             unit_price=form.unit_price.data,
@@ -187,37 +192,36 @@ def reports():
 def setup_sample_data():
     """Setup sample data for testing"""
     try:
-        # Sample orders data based on common church congregations and sizes
+        from datetime import date
+        
+        # Sample orders data based on Excel file structure with batches
         sample_orders = [
-            # Congregação Central
-            {"congregation": "Congregação Central", "size": "P", "quantity": 15, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
-            {"congregation": "Congregação Central", "size": "M", "quantity": 25, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
-            {"congregation": "Congregação Central", "size": "G", "quantity": 20, "unit_price": 25.00, "payment_status": "Pendente"},
-            {"congregation": "Congregação Central", "size": "GG", "quantity": 10, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            # 1º LOTE - Janeiro
+            {"congregation": "Cong. Jerusalém", "batch_number": "1º LOTE", "size": "P", "quantity": 3, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Jerusalém", "batch_number": "1º LOTE", "size": "M", "quantity": 23, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Jerusalém", "batch_number": "1º LOTE", "size": "G", "quantity": 9, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Nova Canaã e Mensageiros do Rei", "batch_number": "1º LOTE", "size": "P", "quantity": 5, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Nova Canaã e Mensageiros do Rei", "batch_number": "1º LOTE", "size": "M", "quantity": 13, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Cong. Sol da Justiça", "batch_number": "1º LOTE", "size": "M", "quantity": 6, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Area 8 - Sonália", "batch_number": "1º LOTE", "size": "P", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Area 8 - Sonália", "batch_number": "1º LOTE", "size": "M", "quantity": 10, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Cartão de Crédito"},
             
-            # Congregação Bela Vista
-            {"congregation": "Congregação Bela Vista", "size": "PP", "quantity": 8, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
-            {"congregation": "Congregação Bela Vista", "size": "P", "quantity": 12, "unit_price": 25.00, "payment_status": "Pendente"},
-            {"congregation": "Congregação Bela Vista", "size": "M", "quantity": 18, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Cartão de Crédito"},
-            {"congregation": "Congregação Bela Vista", "size": "G", "quantity": 15, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            # 2º LOTE - Fevereiro
+            {"congregation": "Cong. Rosa de Saron", "batch_number": "2º LOTE", "size": "M", "quantity": 1, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Mensageiros da Paz", "batch_number": "2º LOTE", "size": "PP", "quantity": 4, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Mensageiros da Paz", "batch_number": "2º LOTE", "size": "P", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Mensageiros da Paz", "batch_number": "2º LOTE", "size": "M", "quantity": 8, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Monte das Oliveiras", "batch_number": "2º LOTE", "size": "M", "quantity": 4, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
             
-            # Congregação Vila Nova
-            {"congregation": "Congregação Vila Nova", "size": "P", "quantity": 10, "unit_price": 25.00, "payment_status": "Pendente"},
-            {"congregation": "Congregação Vila Nova", "size": "M", "quantity": 22, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
-            {"congregation": "Congregação Vila Nova", "size": "G", "quantity": 16, "unit_price": 25.00, "payment_status": "Pendente"},
-            {"congregation": "Congregação Vila Nova", "size": "EXTG", "quantity": 5, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            # 3º LOTE - Março  
+            {"congregation": "Cong. Lírio dos Vales", "batch_number": "3º LOTE", "size": "P", "quantity": 7, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Manancial de Bençãos", "batch_number": "3º LOTE", "size": "M", "quantity": 9, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Fonte de Elim", "batch_number": "3º LOTE", "size": "G", "quantity": 5, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
             
-            # Congregação São José
-            {"congregation": "Congregação São José", "size": "PP", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
-            {"congregation": "Congregação São José", "size": "P", "quantity": 14, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
-            {"congregation": "Congregação São José", "size": "M", "quantity": 20, "unit_price": 25.00, "payment_status": "Pendente"},
-            {"congregation": "Congregação São José", "size": "G", "quantity": 12, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Cartão de Débito"},
-            
-            # Congregação Jardim das Flores
-            {"congregation": "Congregação Jardim das Flores", "size": "P", "quantity": 9, "unit_price": 25.00, "payment_status": "Pendente"},
-            {"congregation": "Congregação Jardim das Flores", "size": "M", "quantity": 16, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
-            {"congregation": "Congregação Jardim das Flores", "size": "G", "quantity": 13, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
-            {"congregation": "Congregação Jardim das Flores", "size": "GG", "quantity": 7, "unit_price": 25.00, "payment_status": "Pendente"},
+            # 4º LOTE - Abril/Maio
+            {"congregation": "Cong. Casa de Davi", "batch_number": "4º LOTE", "size": "M", "quantity": 10, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Filadelfia", "batch_number": "4º LOTE", "size": "G", "quantity": 6, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Macedonia", "batch_number": "4º LOTE", "size": "P", "quantity": 8, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
         ]
         
         # Check if sample data already exists

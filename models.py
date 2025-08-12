@@ -14,7 +14,10 @@ class Order(db.Model):
     """T-shirt order model"""
     id = db.Column(db.Integer, primary_key=True)
     congregation = db.Column(db.String(100), nullable=False)
-    size = db.Column(db.String(10), nullable=False)  # PP, P, M, G, GG, EXTG
+    batch_number = db.Column(db.String(50), nullable=False, default='1º LOTE')  # Número do lote
+    batch_date = db.Column(db.Date)  # Data do lote
+    delivery_date = db.Column(db.Date)  # Data de entrega prevista
+    size = db.Column(db.String(20), nullable=False)  # PP, P, M, G, GG, EXTG, 2 anos, 6 anos, 8 anos, 9 anos, 10 anos
     quantity = db.Column(db.Integer, nullable=False, default=1)
     unit_price = db.Column(db.Float, nullable=False, default=25.00)  # Default price
     total_amount = db.Column(db.Float, nullable=False)
@@ -68,6 +71,26 @@ class Order(db.Model):
             .group_by(cls.congregation).all()
         return [{'congregation': cong, 'quantity': qty, 'amount': amt} 
                 for cong, qty, amt in results]
+
+    @classmethod
+    def get_batch_distribution(cls):
+        """Get distribution of orders by batch"""
+        results = db.session.query(cls.batch_number, func.sum(cls.quantity), func.sum(cls.total_amount))\
+            .group_by(cls.batch_number).all()
+        return [{'batch': batch, 'quantity': qty, 'amount': amt} 
+                for batch, qty, amt in results]
+
+    @classmethod
+    def get_unique_batches(cls):
+        """Get all unique batch numbers"""
+        results = db.session.query(cls.batch_number).distinct().all()
+        return [result[0] for result in results]
+
+    @classmethod
+    def get_unique_congregations(cls):
+        """Get all unique congregations"""
+        results = db.session.query(cls.congregation).distinct().all()
+        return [result[0] for result in results]
 
     def __repr__(self):
         return f'<Order {self.id}: {self.congregation} - {self.size} x{self.quantity}>'
