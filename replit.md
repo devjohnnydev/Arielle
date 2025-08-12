@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a Flask-based web application designed to help Arielle Tigre, the administrator of Igreja Assembleia de Deus de Jerusalém, manage t-shirt orders and payments for the church congress. The system provides a comprehensive solution for tracking orders, managing payments, and generating reports with an intuitive interface that reflects the church's visual identity.
+This is a Flask-based web application designed to help Arielle Tigre, the administrator of Assembleia de Deus Comadesha Jerusalém, manage t-shirt orders and payments for the church congress. The system provides a comprehensive solution for tracking orders, managing payments, and generating reports with an intuitive interface that reflects the church's official visual identity based on their logo.
 
 ## User Preferences
 
@@ -84,5 +84,23 @@ The system provides comprehensive data management capabilities:
 
 ### Church-Specific Integrations
 - **Instagram**: Social media integration link to @ieadajerusalem
-- **Church branding**: Custom logo and color scheme integration
+- **Church branding**: Updated visual identity based on official church logo with blue, gold, and white color scheme
+- **Logo**: Custom SVG logo featuring the church's official design elements (Assembleia de Deus, Comadesha, Jerusalém)
 - **Portuguese localization**: All interface elements in Portuguese for the Brazilian church context
+- **Sample data**: Functionality to load example congregation data for testing and demonstration purposes
+
+## Recent Updates (August 2025)
+
+### Visual Identity Overhaul
+- Updated color palette based on official church logo:
+  - Primary: Deep blue (#1e3a8a)
+  - Secondary: Blue (#3b82f6) 
+  - Accent: Gold/Yellow (#fbbf24)
+  - Supporting: Gold (#d97706)
+- Created new SVG logo reflecting church's actual branding with circular design, wheat decorations, and proper church name
+- Updated all templates and styles to use new church name "Assembleia de Deus Comadesha Jerusalém"
+
+### Enhanced Functionality
+- Added sample data loading feature with realistic congregation names and order data
+- Improved error handling in authentication flow
+- Enhanced dashboard with conditional display of sample data loading option

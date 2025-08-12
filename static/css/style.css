@@ -1,14 +1,15 @@
 /* Custom CSS for Church T-Shirt Management System */
 
 :root {
-    --church-primary: #2c5282;
-    --church-secondary: #4a5568;
-    --church-accent: #d4af37;
-    --church-light: #edf2f7;
-    --church-dark: #1a202c;
-    --church-success: #38a169;
-    --church-warning: #d69e2e;
-    --church-danger: #e53e3e;
+    --church-primary: #1e3a8a;
+    --church-secondary: #3b82f6;
+    --church-accent: #fbbf24;
+    --church-gold: #d97706;
+    --church-light: #dbeafe;
+    --church-dark: #1e40af;
+    --church-success: #10b981;
+    --church-warning: #f59e0b;
+    --church-danger: #dc2626;
 }
 
 /* General Styles */
@@ -38,8 +39,21 @@ body {
 }
 
 .btn-church-primary:hover {
-    background-color: #2a4f7a;
-    border-color: #2a4f7a;
+    background-color: var(--church-dark);
+    border-color: var(--church-dark);
+    color: white;
+}
+
+.btn-church-gold {
+    background-color: var(--church-accent);
+    border-color: var(--church-accent);
+    color: var(--church-primary);
+    font-weight: 600;
+}
+
+.btn-church-gold:hover {
+    background-color: var(--church-gold);
+    border-color: var(--church-gold);
     color: white;
 }
 

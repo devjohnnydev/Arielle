@@ -1,59 +1,94 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
   <defs>
-    <linearGradient id="crossGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2c5282;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#3182ce;stop-opacity:1" />
+    <!-- Gradients based on the church logo colors -->
+    <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a8a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
     </linearGradient>
-    <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#b8941f;stop-opacity:1" />
+    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
     </linearGradient>
+    <radialGradient id="centerGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#dbeafe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </radialGradient>
     <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.2"/>
+      <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.3"/>
     </filter>
   </defs>
   
-  <!-- Background Circle -->
-  <circle cx="100" cy="100" r="90" fill="url(#circleGradient)" filter="url(#shadow)"/>
+  <!-- Outer gold ring -->
+  <circle cx="100" cy="100" r="95" fill="url(#goldGradient)" filter="url(#shadow)"/>
   
-  <!-- Inner Circle -->
-  <circle cx="100" cy="100" r="75" fill="white" opacity="0.9"/>
+  <!-- White background -->
+  <circle cx="100" cy="100" r="85" fill="white"/>
   
-  <!-- Cross -->
-  <g fill="url(#crossGradient)" filter="url(#shadow)">
-    <!-- Vertical part of cross -->
-    <rect x="85" y="40" width="30" height="120" rx="15"/>
-    <!-- Horizontal part of cross -->
-    <rect x="55" y="85" width="90" height="30" rx="15"/>
+  <!-- Wheat decorations around the circle -->
+  <g fill="url(#goldGradient)" opacity="0.8">
+    <!-- Top wheat -->
+    <path d="M85,25 Q100,20 115,25 Q110,30 105,32 Q100,30 95,32 Q90,30 85,25" stroke="#d97706" stroke-width="1"/>
+    <path d="M85,35 Q100,30 115,35 Q110,40 105,42 Q100,40 95,42 Q90,40 85,35" stroke="#d97706" stroke-width="1"/>
+    
+    <!-- Bottom wheat -->
+    <path d="M85,175 Q100,180 115,175 Q110,170 105,168 Q100,170 95,168 Q90,170 85,175" stroke="#d97706" stroke-width="1"/>
+    <path d="M85,165 Q100,170 115,165 Q110,160 105,158 Q100,160 95,158 Q90,160 85,165" stroke="#d97706" stroke-width="1"/>
+    
+    <!-- Left wheat -->
+    <path d="M25,85 Q20,100 25,115 Q30,110 32,105 Q30,100 32,95 Q30,90 25,85" stroke="#d97706" stroke-width="1"/>
+    <path d="M35,85 Q30,100 35,115 Q40,110 42,105 Q40,100 42,95 Q40,90 35,85" stroke="#d97706" stroke-width="1"/>
+    
+    <!-- Right wheat -->
+    <path d="M175,85 Q180,100 175,115 Q170,110 168,105 Q170,100 168,95 Q170,90 175,85" stroke="#d97706" stroke-width="1"/>
+    <path d="M165,85 Q170,100 165,115 Q160,110 158,105 Q160,100 158,95 Q160,90 165,85" stroke="#d97706" stroke-width="1"/>
   </g>
   
-  <!-- Decorative elements -->
-  <g fill="url(#circleGradient)" opacity="0.8">
-    <!-- Top decoration -->
-    <circle cx="100" cy="45" r="8"/>
-    <!-- Left decoration -->
-    <circle cx="60" cy="100" r="6"/>
-    <!-- Right decoration -->
-    <circle cx="140" cy="100" r="6"/>
-    <!-- Bottom decoration -->
-    <circle cx="100" cy="155" r="8"/>
+  <!-- Central blue circle -->
+  <circle cx="100" cy="100" r="60" fill="url(#centerGradient)" stroke="url(#blueGradient)" stroke-width="3"/>
+  
+  <!-- Church symbol in center (stylized cross and dove) -->
+  <g fill="url(#blueGradient)" opacity="0.9">
+    <!-- Cross -->
+    <rect x="90" y="55" width="20" height="90" rx="10"/>
+    <rect x="65" y="80" width="70" height="20" rx="10"/>
+    
+    <!-- Dove/Spirit symbol -->
+    <path d="M80,70 Q85,65 95,70 Q105,65 120,70 Q115,75 105,78 Q95,75 85,78 Q80,75 80,70" fill="#dc2626" opacity="0.8"/>
   </g>
   
-  <!-- Text curve path (invisible) -->
+  <!-- Text paths for church name -->
   <defs>
-    <path id="textCircle" d="M 100,100 m -70,0 A 70,70 0 1,1 100,30 A 70,70 0 1,1 100,170 A 70,70 0 1,1 100,100"/>
+    <path id="topArc" d="M 100,100 m -70,0 A 70,70 0 0,1 100,30 A 70,70 0 0,1 170,100"/>
+    <path id="bottomArc" d="M 100,100 m 70,0 A 70,70 0 0,1 100,170 A 70,70 0 0,1 30,100"/>
   </defs>
   
-  <!-- Church name on path -->
-  <text font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#2c5282">
-    <textPath href="#textCircle" startOffset="25%">
-      IEADJ • IGREJA JERUSALÉM
+  <!-- Top text: Assembleia de Deus -->
+  <text font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#1e3a8a">
+    <textPath href="#topArc" startOffset="20%">
+      ASSEMBLEIA DE DEUS
     </textPath>
   </text>
   
-  <!-- Center small cross -->
-  <g fill="white" opacity="0.9">
-    <rect x="95" y="85" width="10" height="30" rx="2"/>
-    <rect x="85" y="95" width="30" height="10" rx="2"/>
+  <!-- Side text: Comadesha -->
+  <text font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#1e3a8a">
+    <textPath href="#bottomArc" startOffset="65%">
+      COMADESHA
+    </textPath>
+  </text>
+  
+  <!-- Bottom banner for Jerusalém -->
+  <g>
+    <path d="M50,160 Q100,150 150,160 L145,175 Q100,165 55,175 Z" fill="url(#goldGradient)" filter="url(#shadow)"/>
+    <text x="100" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="white">
+      JERUSALÉM
+    </text>
+  </g>
+  
+  <!-- Small decorative elements -->
+  <g fill="url(#goldGradient)" opacity="0.6">
+    <circle cx="70" cy="60" r="3"/>
+    <circle cx="130" cy="60" r="3"/>
+    <circle cx="70" cy="140" r="3"/>
+    <circle cx="130" cy="140" r="3"/>
   </g>
 </svg>

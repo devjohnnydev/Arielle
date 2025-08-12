@@ -22,7 +22,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         admin = Admin.query.filter_by(email=form.email.data).first()
-        if admin and check_password_hash(admin.password_hash, form.password.data):
+        if admin and admin.password_hash and check_password_hash(admin.password_hash, form.password.data):
             session['admin_id'] = admin.id
             session['admin_name'] = admin.name
             flash('Login realizado com sucesso!', 'success')
@@ -181,6 +181,69 @@ def reports():
                          stats=stats,
                          size_distribution=size_distribution,
                          congregation_distribution=congregation_distribution)
+
+@app.route('/setup-sample-data')
+@login_required
+def setup_sample_data():
+    """Setup sample data for testing"""
+    try:
+        # Sample orders data based on common church congregations and sizes
+        sample_orders = [
+            # Congregação Central
+            {"congregation": "Congregação Central", "size": "P", "quantity": 15, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Congregação Central", "size": "M", "quantity": 25, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Congregação Central", "size": "G", "quantity": 20, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Congregação Central", "size": "GG", "quantity": 10, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            
+            # Congregação Bela Vista
+            {"congregation": "Congregação Bela Vista", "size": "PP", "quantity": 8, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Congregação Bela Vista", "size": "P", "quantity": 12, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Congregação Bela Vista", "size": "M", "quantity": 18, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Cartão de Crédito"},
+            {"congregation": "Congregação Bela Vista", "size": "G", "quantity": 15, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            
+            # Congregação Vila Nova
+            {"congregation": "Congregação Vila Nova", "size": "P", "quantity": 10, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Congregação Vila Nova", "size": "M", "quantity": 22, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Congregação Vila Nova", "size": "G", "quantity": 16, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Congregação Vila Nova", "size": "EXTG", "quantity": 5, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            
+            # Congregação São José
+            {"congregation": "Congregação São José", "size": "PP", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Congregação São José", "size": "P", "quantity": 14, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Congregação São José", "size": "M", "quantity": 20, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Congregação São José", "size": "G", "quantity": 12, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Cartão de Débito"},
+            
+            # Congregação Jardim das Flores
+            {"congregation": "Congregação Jardim das Flores", "size": "P", "quantity": 9, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Congregação Jardim das Flores", "size": "M", "quantity": 16, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Congregação Jardim das Flores", "size": "G", "quantity": 13, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Congregação Jardim das Flores", "size": "GG", "quantity": 7, "unit_price": 25.00, "payment_status": "Pendente"},
+        ]
+        
+        # Check if sample data already exists
+        existing_orders = Order.query.limit(1).first()
+        if existing_orders:
+            flash('Dados de exemplo já existem no sistema.', 'info')
+            return redirect(url_for('dashboard'))
+        
+        # Add sample orders
+        for order_data in sample_orders:
+            order = Order(**order_data)
+            order.calculate_total()
+            
+            if order.payment_status == 'Pago':
+                order.payment_date = datetime.utcnow()
+            
+            db.session.add(order)
+        
+        db.session.commit()
+        flash(f'Dados de exemplo adicionados com sucesso! {len(sample_orders)} pedidos criados.', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Erro ao adicionar dados de exemplo: {str(e)}', 'danger')
+    
+    return redirect(url_for('dashboard'))
 
 @app.route('/export/csv')
 @login_required
