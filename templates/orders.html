@@ -34,22 +34,41 @@
                     <form method="GET" class="row g-3">
                         <div class="col-md-2">
                             <label class="form-label">Lote</label>
-                            {{ filter_form.batch_number(class="form-select") }}
+                            <select name="batch" class="form-select">
+                                <option value="">Todos os Lotes</option>
+                                {% for batch in batches %}
+                                <option value="{{ batch }}" {% if filters.batch == batch %}selected{% endif %}>{{ batch }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         
                         <div class="col-md-3">
                             <label class="form-label">Congregação</label>
-                            {{ filter_form.congregation(class="form-select") }}
+                            <select name="congregation" class="form-select">
+                                <option value="">Todas as Congregações</option>
+                                {% for congregation in congregations %}
+                                <option value="{{ congregation }}" {% if filters.congregation == congregation %}selected{% endif %}>{{ congregation }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         
                         <div class="col-md-2">
                             <label class="form-label">Tamanho</label>
-                            {{ filter_form.size(class="form-select") }}
+                            <select name="size" class="form-select">
+                                <option value="">Todos os Tamanhos</option>
+                                {% for size in sizes %}
+                                <option value="{{ size }}" {% if filters.size == size %}selected{% endif %}>{{ size }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                         
                         <div class="col-md-2">
                             <label class="form-label">Status</label>
-                            {{ filter_form.payment_status(class="form-select") }}
+                            <select name="status" class="form-select">
+                                <option value="">Todos os Status</option>
+                                <option value="Pendente" {% if filters.status == 'Pendente' %}selected{% endif %}>Pendente</option>
+                                <option value="Pago" {% if filters.status == 'Pago' %}selected{% endif %}>Pago</option>
+                            </select>
                         </div>
                         
                         <div class="col-md-2">
@@ -104,7 +123,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for order in orders.items %}
+                                    {% for order in orders %}
                                     <tr>
                                         <td><strong>#{{ order.id }}</strong></td>
                                         <td><span class="badge bg-church-gold text-dark">{{ order.batch_number }}</span></td>

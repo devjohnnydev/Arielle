@@ -69,6 +69,7 @@ def orders():
     congregation_filter = request.args.get('congregation', '')
     size_filter = request.args.get('size', '')
     status_filter = request.args.get('status', '')
+    batch_filter = request.args.get('batch', '')
     date_from = request.args.get('date_from', '')
     date_to = request.args.get('date_to', '')
     
@@ -81,10 +82,12 @@ def orders():
         query = query.filter(Order.size == size_filter)
     if status_filter:
         query = query.filter(Order.payment_status == status_filter)
+    if batch_filter:
+        query = query.filter(Order.batch_number == batch_filter)
     if date_from:
-        query = query.filter(Order.order_date >= datetime.strptime(date_from, '%Y-%m-%d'))
+        query = query.filter(Order.created_at >= datetime.strptime(date_from, '%Y-%m-%d'))
     if date_to:
-        query = query.filter(Order.order_date <= datetime.strptime(date_to, '%Y-%m-%d'))
+        query = query.filter(Order.created_at <= datetime.strptime(date_to, '%Y-%m-%d'))
     
     # Paginate results
     orders_pagination = query.order_by(Order.created_at.desc()).paginate(
@@ -92,18 +95,21 @@ def orders():
     )
     
     # Get unique values for filter dropdowns
-    congregations = db.session.query(Order.congregation).distinct().all()
-    sizes = db.session.query(Order.size).distinct().all()
+    congregations = db.session.query(Order.congregation).distinct().order_by(Order.congregation).all()
+    sizes = db.session.query(Order.size).distinct().order_by(Order.size).all()
+    batches = db.session.query(Order.batch_number).distinct().order_by(Order.batch_number).all()
     
     return render_template('orders.html',
                          orders=orders_pagination.items,
                          pagination=orders_pagination,
                          congregations=[c[0] for c in congregations],
                          sizes=[s[0] for s in sizes],
+                         batches=[b[0] for b in batches],
                          filters={
                              'congregation': congregation_filter,
                              'size': size_filter,
                              'status': status_filter,
+                             'batch': batch_filter,
                              'date_from': date_from,
                              'date_to': date_to
                          })
@@ -194,34 +200,114 @@ def setup_sample_data():
     try:
         from datetime import date
         
-        # Sample orders data based on Excel file structure with batches
+        # Sample orders data based on actual Excel planilha structure
         sample_orders = [
-            # 1º LOTE - Janeiro
-            {"congregation": "Cong. Jerusalém", "batch_number": "1º LOTE", "size": "P", "quantity": 3, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
-            {"congregation": "Cong. Jerusalém", "batch_number": "1º LOTE", "size": "M", "quantity": 23, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            # 1º LOTE - Baseado na planilha real
+            {"congregation": "Cong. Jerusalém", "batch_number": "1º LOTE", "size": "PP", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Jerusalém", "batch_number": "1º LOTE", "size": "P", "quantity": 3, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Jerusalém", "batch_number": "1º LOTE", "size": "M", "quantity": 23, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
             {"congregation": "Cong. Jerusalém", "batch_number": "1º LOTE", "size": "G", "quantity": 9, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Jerusalém", "batch_number": "1º LOTE", "size": "GG", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            
             {"congregation": "Nova Canaã e Mensageiros do Rei", "batch_number": "1º LOTE", "size": "P", "quantity": 5, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
-            {"congregation": "Nova Canaã e Mensageiros do Rei", "batch_number": "1º LOTE", "size": "M", "quantity": 13, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
-            {"congregation": "Cong. Sol da Justiça", "batch_number": "1º LOTE", "size": "M", "quantity": 6, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Nova Canaã e Mensageiros do Rei", "batch_number": "1º LOTE", "size": "M", "quantity": 13, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Nova Canaã e Mensageiros do Rei", "batch_number": "1º LOTE", "size": "G", "quantity": 7, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Nova Canaã e Mensageiros do Rei", "batch_number": "1º LOTE", "size": "GG", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            
+            {"congregation": "Cong. Sol da Justiça (irmã Nanci)", "batch_number": "1º LOTE", "size": "M", "quantity": 6, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Sol da Justiça (irmã Nanci)", "batch_number": "1º LOTE", "size": "G", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Sol da Justiça (irmã Nanci)", "batch_number": "1º LOTE", "size": "GG", "quantity": 2, "unit_price": 25.00, "payment_status": "Pendente"},
+            
             {"congregation": "Area 8 - Sonália", "batch_number": "1º LOTE", "size": "P", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
             {"congregation": "Area 8 - Sonália", "batch_number": "1º LOTE", "size": "M", "quantity": 10, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Cartão de Crédito"},
+            {"congregation": "Area 8 - Sonália", "batch_number": "1º LOTE", "size": "G", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Area 8 - Sonália", "batch_number": "1º LOTE", "size": "GG", "quantity": 3, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Area 8 - Sonália", "batch_number": "1º LOTE", "size": "EXTG", "quantity": 3, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Area 8 - Sonália", "batch_number": "1º LOTE", "size": "2 anos", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Area 8 - Sonália", "batch_number": "1º LOTE", "size": "10 anos", "quantity": 1, "unit_price": 25.00, "payment_status": "Pendente"},
             
-            # 2º LOTE - Fevereiro
-            {"congregation": "Cong. Rosa de Saron", "batch_number": "2º LOTE", "size": "M", "quantity": 1, "unit_price": 25.00, "payment_status": "Pendente"},
+            # 2º LOTE - Baseado na planilha real
+            {"congregation": "Cong. Rosa de Saron (Rejania)", "batch_number": "2º LOTE", "size": "M", "quantity": 1, "unit_price": 25.00, "payment_status": "Pendente"},
+            
             {"congregation": "Mensageiros da Paz", "batch_number": "2º LOTE", "size": "PP", "quantity": 4, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
             {"congregation": "Mensageiros da Paz", "batch_number": "2º LOTE", "size": "P", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
             {"congregation": "Mensageiros da Paz", "batch_number": "2º LOTE", "size": "M", "quantity": 8, "unit_price": 25.00, "payment_status": "Pendente"},
-            {"congregation": "Cong. Monte das Oliveiras", "batch_number": "2º LOTE", "size": "M", "quantity": 4, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Mensageiros da Paz", "batch_number": "2º LOTE", "size": "G", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Mensageiros da Paz", "batch_number": "2º LOTE", "size": "GG", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Mensageiros da Paz", "batch_number": "2º LOTE", "size": "10 anos", "quantity": 1, "unit_price": 25.00, "payment_status": "Pendente"},
             
-            # 3º LOTE - Março  
-            {"congregation": "Cong. Lírio dos Vales", "batch_number": "3º LOTE", "size": "P", "quantity": 7, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
-            {"congregation": "Cong. Manancial de Bençãos", "batch_number": "3º LOTE", "size": "M", "quantity": 9, "unit_price": 25.00, "payment_status": "Pendente"},
-            {"congregation": "Cong. Fonte de Elim", "batch_number": "3º LOTE", "size": "G", "quantity": 5, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Monte das Oliveiras (Jailene)", "batch_number": "2º LOTE", "size": "M", "quantity": 4, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Cong. Monte das Oliveiras (Jailene)", "batch_number": "2º LOTE", "size": "G", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Monte das Oliveiras (Jailene)", "batch_number": "2º LOTE", "size": "GG", "quantity": 2, "unit_price": 25.00, "payment_status": "Pendente"},
             
-            # 4º LOTE - Abril/Maio
-            {"congregation": "Cong. Casa de Davi", "batch_number": "4º LOTE", "size": "M", "quantity": 10, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
-            {"congregation": "Cong. Filadelfia", "batch_number": "4º LOTE", "size": "G", "quantity": 6, "unit_price": 25.00, "payment_status": "Pendente"},
-            {"congregation": "Cong. Macedonia", "batch_number": "4º LOTE", "size": "P", "quantity": 8, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Cong. Nova Canaã (Valdinete)", "batch_number": "2º LOTE", "size": "P", "quantity": 3, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Nova Canaã (Valdinete)", "batch_number": "2º LOTE", "size": "M", "quantity": 5, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Cong. Nova Canaã (Valdinete)", "batch_number": "2º LOTE", "size": "G", "quantity": 4, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Nova Canaã (Valdinete)", "batch_number": "2º LOTE", "size": "GG", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            
+            # 3º LOTE (10/05) - Baseado na planilha real
+            {"congregation": "Cong. Jerusalem", "batch_number": "3º LOTE (10/05)", "size": "P", "quantity": 8, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Jerusalem", "batch_number": "3º LOTE (10/05)", "size": "M", "quantity": 13, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Jerusalem", "batch_number": "3º LOTE (10/05)", "size": "G", "quantity": 3, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Jerusalem", "batch_number": "3º LOTE (10/05)", "size": "GG", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            
+            {"congregation": "Cong. Porta Formosa (Barra Azul) - Miss Francisca", "batch_number": "3º LOTE (10/05)", "size": "PP", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Porta Formosa (Barra Azul) - Miss Francisca", "batch_number": "3º LOTE (10/05)", "size": "P", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Porta Formosa (Barra Azul) - Miss Francisca", "batch_number": "3º LOTE (10/05)", "size": "M", "quantity": 7, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Porta Formosa (Barra Azul) - Miss Francisca", "batch_number": "3º LOTE (10/05)", "size": "G", "quantity": 9, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Cong. Porta Formosa (Barra Azul) - Miss Francisca", "batch_number": "3º LOTE (10/05)", "size": "GG", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            
+            # 4º LOTE (25/05) - Baseado na planilha real
+            {"congregation": "Cong. Lírio dos Vales", "batch_number": "4º LOTE (25/05)", "size": "PP", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Lírio dos Vales", "batch_number": "4º LOTE (25/05)", "size": "M", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Lírio dos Vales", "batch_number": "4º LOTE (25/05)", "size": "G", "quantity": 1, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Lírio dos Vales", "batch_number": "4º LOTE (25/05)", "size": "GG", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            
+            {"congregation": "Cong. Area 05", "batch_number": "4º LOTE (25/05)", "size": "PP", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Area 05", "batch_number": "4º LOTE (25/05)", "size": "P", "quantity": 4, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Area 05", "batch_number": "4º LOTE (25/05)", "size": "M", "quantity": 23, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Area 05", "batch_number": "4º LOTE (25/05)", "size": "G", "quantity": 25, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Cong. Area 05", "batch_number": "4º LOTE (25/05)", "size": "GG", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Area 05", "batch_number": "4º LOTE (25/05)", "size": "EXTG", "quantity": 2, "unit_price": 25.00, "payment_status": "Pendente"},
+            
+            # 5º LOTE (10/06) - Baseado na planilha real
+            {"congregation": "Área 09", "batch_number": "5º LOTE (10/06)", "size": "P", "quantity": 7, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Área 09", "batch_number": "5º LOTE (10/06)", "size": "M", "quantity": 18, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Área 09", "batch_number": "5º LOTE (10/06)", "size": "G", "quantity": 14, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Área 09", "batch_number": "5º LOTE (10/06)", "size": "GG", "quantity": 7, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Área 09", "batch_number": "5º LOTE (10/06)", "size": "EXTG", "quantity": 4, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            
+            {"congregation": "Cong. Jardim de Deus (Miss. Lia)", "batch_number": "5º LOTE (10/06)", "size": "PP", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Jardim de Deus (Miss. Lia)", "batch_number": "5º LOTE (10/06)", "size": "P", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Jardim de Deus (Miss. Lia)", "batch_number": "5º LOTE (10/06)", "size": "M", "quantity": 3, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Jardim de Deus (Miss. Lia)", "batch_number": "5º LOTE (10/06)", "size": "G", "quantity": 5, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Cong. Jardim de Deus (Miss. Lia)", "batch_number": "5º LOTE (10/06)", "size": "GG", "quantity": 3, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Jardim de Deus (Miss. Lia)", "batch_number": "5º LOTE (10/06)", "size": "EXTG", "quantity": 2, "unit_price": 25.00, "payment_status": "Pendente"},
+            
+            # 6º LOTE (25/06) - Baseado na planilha real
+            {"congregation": "Cong. Monte Sião - Area 10", "batch_number": "6º LOTE (25/06)", "size": "P", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Monte Sião - Area 10", "batch_number": "6º LOTE (25/06)", "size": "M", "quantity": 15, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Monte Sião - Area 10", "batch_number": "6º LOTE (25/06)", "size": "G", "quantity": 3, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Monte Sião - Area 10", "batch_number": "6º LOTE (25/06)", "size": "GG", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            
+            {"congregation": "Cong. Mensageiros da Fé (Miss Gecy)", "batch_number": "6º LOTE (25/06)", "size": "PP", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Mensageiros da Fé (Miss Gecy)", "batch_number": "6º LOTE (25/06)", "size": "P", "quantity": 4, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Mensageiros da Fé (Miss Gecy)", "batch_number": "6º LOTE (25/06)", "size": "M", "quantity": 5, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Mensageiros da Fé (Miss Gecy)", "batch_number": "6º LOTE (25/06)", "size": "G", "quantity": 8, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Cong. Mensageiros da Fé (Miss Gecy)", "batch_number": "6º LOTE (25/06)", "size": "EXTG", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Mensageiros da Fé (Miss Gecy)", "batch_number": "6º LOTE (25/06)", "size": "1 ANO", "quantity": 1, "unit_price": 25.00, "payment_status": "Pendente"},
+            
+            # 7º LOTE (10/08) - Baseado na planilha real
+            {"congregation": "Cong. Novas de Paz", "batch_number": "7º LOTE (10/08)", "size": "P", "quantity": 7, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Novas de Paz", "batch_number": "7º LOTE (10/08)", "size": "M", "quantity": 23, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Novas de Paz", "batch_number": "7º LOTE (10/08)", "size": "G", "quantity": 21, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Novas de Paz", "batch_number": "7º LOTE (10/08)", "size": "GG", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            
+            {"congregation": "Cong. Arca da Aliança", "batch_number": "7º LOTE (10/08)", "size": "P", "quantity": 4, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
+            {"congregation": "Cong. Arca da Aliança", "batch_number": "7º LOTE (10/08)", "size": "M", "quantity": 6, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Transferência Bancária"},
+            {"congregation": "Cong. Arca da Aliança", "batch_number": "7º LOTE (10/08)", "size": "G", "quantity": 8, "unit_price": 25.00, "payment_status": "Pendente"},
+            {"congregation": "Cong. Arca da Aliança", "batch_number": "7º LOTE (10/08)", "size": "GG", "quantity": 1, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "Dinheiro"},
+            {"congregation": "Cong. Arca da Aliança", "batch_number": "7º LOTE (10/08)", "size": "EXTG", "quantity": 2, "unit_price": 25.00, "payment_status": "Pago", "payment_method": "PIX"},
         ]
         
         # Check if sample data already exists

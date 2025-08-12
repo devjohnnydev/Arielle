@@ -13,8 +13,9 @@ class OrderForm(FlaskForm):
     congregation = StringField('Congregação', validators=[DataRequired(), Length(min=2, max=100)])
     batch_number = SelectField('Lote', 
                               choices=[('1º LOTE', '1º LOTE'), ('2º LOTE', '2º LOTE'), 
-                                      ('3º LOTE', '3º LOTE'), ('4º LOTE', '4º LOTE'),
-                                      ('5º LOTE', '5º LOTE')],
+                                      ('3º LOTE (10/05)', '3º LOTE (10/05)'), ('4º LOTE (25/05)', '4º LOTE (25/05)'),
+                                      ('5º LOTE (10/06)', '5º LOTE (10/06)'), ('6º LOTE (25/06)', '6º LOTE (25/06)'),
+                                      ('7º LOTE (10/08)', '7º LOTE (10/08)')],
                               validators=[DataRequired()],
                               default='1º LOTE')
     batch_date = DateField('Data do Lote', validators=[Optional()])
@@ -46,8 +47,9 @@ class EditOrderForm(FlaskForm):
     congregation = StringField('Congregação', validators=[DataRequired(), Length(min=2, max=100)])
     batch_number = SelectField('Lote', 
                               choices=[('1º LOTE', '1º LOTE'), ('2º LOTE', '2º LOTE'), 
-                                      ('3º LOTE', '3º LOTE'), ('4º LOTE', '4º LOTE'),
-                                      ('5º LOTE', '5º LOTE')],
+                                      ('3º LOTE (10/05)', '3º LOTE (10/05)'), ('4º LOTE (25/05)', '4º LOTE (25/05)'),
+                                      ('5º LOTE (10/06)', '5º LOTE (10/06)'), ('6º LOTE (25/06)', '6º LOTE (25/06)'),
+                                      ('7º LOTE (10/08)', '7º LOTE (10/08)')],
                               validators=[DataRequired()])
     batch_date = DateField('Data do Lote', validators=[Optional()])
     delivery_date = DateField('Data de Entrega', validators=[Optional()])
